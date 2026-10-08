@@ -36,4 +36,4 @@ Ngày 08/10/2026. Collection chạy qua Newman trên API Docker và PostgreSQL t
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts\Check-Prompt2.ps1 -OrderId 33 -ProductX 62 -ProductY 63
 ```
 
-Kỳ vọng prompt2_demo_pass=t. Với lượt mới, dùng các ID thực tế của lượt đó. GitHub cần URL repository của người nộp để hoàn tất phần kiểm tra trên GitHub; repository local không thay thế bằng chứng này. Điểm do giảng viên quyết định.
+Kỳ vọng prompt2_demo_pass=t. Với lượt mới, dùng các ID thực tế của lượt đó. GitHub: [https://github.com/lybaonghi1912/ecommerce-api](https://github.com/lybaonghi1912/ecommerce-api), nhánh main công khai; đã kiểm tra danh sách file không có .env thật. Điểm do giảng viên quyết định.

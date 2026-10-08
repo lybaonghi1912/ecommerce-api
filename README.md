@@ -170,3 +170,5 @@ Nguồn tham khảo: [Prisma transactions v7](https://www.prisma.io/docs/orm/v7/
 ## 12. Demo theo phiếu chấm Prompt 2
 
 Bản hiện tại tự gán role normal và membership BASIC score 10 khi đăng ký. Seed chuyển role CUSTOMER cũ sang normal và giữ liên kết tài khoản. Dùng HUONG-DAN-DEMO-PROMPT2.md và Prompt2-Demo.postman_collection.json cho buổi chấm: tạo X/Y qua CLI, đặt X x2 và Y x5, Admin tạo shipment, kiểm tra dữ liệu bằng Check-Prompt2.ps1. Kết quả thực tế trong BAO-CAO-DEMO-PROMPT2.md.
+
+Repository công khai để chấm: [https://github.com/lybaonghi1912/ecommerce-api](https://github.com/lybaonghi1912/ecommerce-api), nhánh main.

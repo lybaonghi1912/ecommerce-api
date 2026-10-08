@@ -68,4 +68,4 @@ Script New-LocalEnv.ps1 đã được chạy bằng Windows PowerShell: tạo se
 
 ## Cập nhật theo phiếu chấm Prompt 2
 
-Role đăng ký hiện là normal, score 10. Sau thay đổi đã chạy lại 34/34 test tích hợp và bộ demo riêng 14 request/26 assertion: tất cả đạt. Kiểm tra bằng psql trong container xác nhận hai dòng X x2/Y x5, tồn kho 8/15 và shipment PENDING. Xem BAO-CAO-DEMO-PROMPT2.md. Dữ liệu demo Prompt 2 được giữ lại; dữ liệu kiểm thử tự động vẫn được dọn theo từng test. GitHub cần repository của người nộp; chưa ghi nhận URL để đẩy mã nguồn.
+Role đăng ký hiện là normal, score 10. Sau thay đổi đã chạy lại 34/34 test tích hợp và bộ demo riêng 14 request/26 assertion: tất cả đạt. Kiểm tra bằng psql trong container xác nhận hai dòng X x2/Y x5, tồn kho 8/15 và shipment PENDING. Xem BAO-CAO-DEMO-PROMPT2.md. Dữ liệu demo Prompt 2 được giữ lại; dữ liệu kiểm thử tự động vẫn được dọn theo từng test. Đã đẩy mã nguồn lên GitHub công khai [https://github.com/lybaonghi1912/ecommerce-api](https://github.com/lybaonghi1912/ecommerce-api), nhánh main; .env thật không được theo dõi hoặc đưa lên.

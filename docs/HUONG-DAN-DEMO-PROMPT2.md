@@ -27,7 +27,7 @@ git ls-files .env .env.example
 
 Đánh giá: .env, .demo và node_modules bị ignore; chỉ .env.example được theo dõi. .gitignore không tự xóa secret đã commit trước đó. Không mở .env thật trên màn hình quay/chia sẻ; trình bày bằng .env.example.
 
-Để hoàn tất phần “trên GitHub”, cần URL repository thực của người nộp và đẩy mã nguồn đã kiểm tra lên đó. Repository local mới chỉ là bước chuẩn bị. Tại GitHub, chỉ ra .gitignore, .env.example và chứng minh không có .env thật.
+Repository công khai: [https://github.com/lybaonghi1912/ecommerce-api](https://github.com/lybaonghi1912/ecommerce-api). Đã đẩy mã nguồn lên nhánh main. Tại GitHub, mở .gitignore và .env.example, chỉ ra không có .env thật. Mã nguồn, migration, tests và bộ demo đều có trong repository.
 
 ## Bước 3 - Giải thích Prisma ORM
 
@@ -126,4 +126,4 @@ Script dùng psql trong container và hiển thị Role/MemberShip/User, Order, 
 
 ## Kết quả chuẩn bị
 
-Đã chạy lại 34 kiểm thử tích hợp với backend mới. Collection Prompt 2 có 14 request và 26 assertion; kết quả thực tế và ID dữ liệu ở BAO-CAO-DEMO-PROMPT2.md. Dữ liệu của lượt này được giữ lại để xem qua CLI. Gói mã nguồn không kèm .env, .demo, node_modules hoặc secret thực. Cần hoàn tất việc đưa mã nguồn lên GitHub khi có repository của người nộp. Việc giải thích trực tiếp và điểm số cuối cùng thuộc buổi chấm của giảng viên.
+Đã chạy lại 34 kiểm thử tích hợp với backend mới. Collection Prompt 2 có 14 request và 26 assertion; kết quả thực tế và ID dữ liệu ở BAO-CAO-DEMO-PROMPT2.md. Dữ liệu của lượt này được giữ lại để xem qua CLI. Gói mã nguồn không kèm .env, .demo, node_modules hoặc secret thực. Mã nguồn đã được đẩy lên repository công khai [https://github.com/lybaonghi1912/ecommerce-api](https://github.com/lybaonghi1912/ecommerce-api). Việc giải thích trực tiếp và điểm số cuối cùng thuộc buổi chấm của giảng viên.
