@@ -1,0 +1,70 @@
+name: ecommerce-api
+
+x-app-image: &app-image
+  image: ecommerce-api:local
+  build:
+    context: .
+
+x-app-environment: &app-environment
+  NODE_ENV: production
+  PORT: "3000"
+  DATABASE_URL: postgresql://${POSTGRES_USER:?POSTGRES_USER is required}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@db:5432/${POSTGRES_DB:?POSTGRES_DB is required}?schema=public
+  JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+  JWT_EXPIRES_IN_SECONDS: ${JWT_EXPIRES_IN_SECONDS:?JWT_EXPIRES_IN_SECONDS is required}
+  JWT_ISSUER: ${JWT_ISSUER:?JWT_ISSUER is required}
+  JWT_AUDIENCE: ${JWT_AUDIENCE:?JWT_AUDIENCE is required}
+
+services:
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:?POSTGRES_DB is required}
+      POSTGRES_USER: ${POSTGRES_USER:?POSTGRES_USER is required}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+    ports:
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+
+  setup:
+    <<: *app-image
+    restart: "no"
+    environment:
+      <<: *app-environment
+      ADMIN_USERNAME: ${ADMIN_USERNAME:?ADMIN_USERNAME is required}
+      ADMIN_FULLNAME: ${ADMIN_FULLNAME:?ADMIN_FULLNAME is required}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:?ADMIN_PASSWORD is required}
+    command: ["sh", "-c", "npx prisma migrate deploy && npm run db:seed"]
+    depends_on:
+      db:
+        condition: service_healthy
+
+  api:
+    <<: *app-image
+    restart: unless-stopped
+    init: true
+    environment: *app-environment
+    ports:
+      - "127.0.0.1:${PORT:-3000}:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+      setup:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "node", "src/healthcheck.js"]
+      interval: 5s
+      timeout: 4s
+      retries: 3
+      start_period: 20s
+    stop_grace_period: 15s
+
+volumes:
+  postgres_data:

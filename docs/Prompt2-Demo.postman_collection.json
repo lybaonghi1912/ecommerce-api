@@ -1,0 +1,492 @@
+{
+  "info": {
+    "name": "Prompt 2 - Demo đúng phiếu chấm",
+    "description": "Chạy Prepare-Prompt2.ps1 trước; import environment ở .demo, điền admin password local. Chạy 01-14 một lần; lấy oid ở 08 để kiểm tra bằng CLI. Mỗi lượt demo mới cần cặp X/Y mới. Shipment do Admin tạo ở 13.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "customer_username",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "customer_password",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "customer_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "admin_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "oid",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "shipid",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "order_started",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "01 - Live",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{base_url}}/health/live",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.collectionVariables.set('customer_username','prompt2_'+Date.now()+'_'+Math.floor(Math.random()*100000));",
+              "pm.collectionVariables.set('customer_password','Prompt2_'+Date.now()+'_Demo!');",
+              "['customer_token','admin_token','oid','shipid'].forEach(k=>pm.collectionVariables.unset(k));"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200',()=>pm.expect(pm.response.code).to.equal(200));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 - Ready",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{base_url}}/health/ready",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200',()=>pm.expect(pm.response.code).to.equal(200));",
+              "pm.test('Database up',()=>pm.expect(pm.response.json().database).to.equal('up'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 - CLI product X before order",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{base_url}}/api/products/{{product_x}}",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200',()=>pm.expect(pm.response.code).to.equal(200));",
+              "pm.test('X initial stock 10',()=>{const p=pm.response.json().product;pm.expect(p.pname).to.equal('X');pm.expect(p.quantity).to.equal(10);pm.expect(p.price).to.equal('100000.00');});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "04 - CLI product Y before order",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{base_url}}/api/products/{{product_y}}",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200',()=>pm.expect(pm.response.code).to.equal(200));",
+              "pm.test('Y initial stock 20',()=>{const p=pm.response.json().product;pm.expect(p.pname).to.equal('Y');pm.expect(p.quantity).to.equal(20);pm.expect(p.price).to.equal('200000.00');});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "05 - Register normal score 10",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/api/auth/register",
+        "auth": {
+          "type": "noauth"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"{{customer_username}}\",\n  \"fullname\": \"Khách hàng demo Prompt 2\",\n  \"password\": \"{{customer_password}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 201',()=>pm.expect(pm.response.code).to.equal(201));",
+              "pm.test('Default normal and score 10',()=>{const u=pm.response.json().user;pm.expect(u.role.rolename).to.equal('normal');pm.expect(u.membership.score).to.equal(10);pm.expect(u).not.to.have.property('password');});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "06 - Login and display token",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/api/auth/login",
+        "auth": {
+          "type": "noauth"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"{{customer_username}}\",\n  \"password\": \"{{customer_password}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200',()=>pm.expect(pm.response.code).to.equal(200));",
+              "if(pm.response.code===200)pm.collectionVariables.set('customer_token',pm.response.json().accessToken);",
+              "pm.test('JWT and normal/10',()=>{const b=pm.response.json();pm.expect(b.accessToken.split('.')).to.have.lengthOf(3);pm.expect(b.tokenType).to.equal('Bearer');pm.expect(b.user.role.rolename).to.equal('normal');pm.expect(b.user.membership.score).to.equal(10);});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "07 - Order without token is rejected",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/api/orders",
+        "auth": {
+          "type": "noauth"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"items\": [\n    {\n      \"pid\": {{product_x}},\n      \"qty\": 2\n    },\n    {\n      \"pid\": {{product_y}},\n      \"qty\": 5\n    }\n  ]\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 401',()=>pm.expect(pm.response.code).to.equal(401));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "08 - Order X x2 and Y x5",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{customer_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/api/orders",
+        "auth": {
+          "type": "noauth"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"items\": [\n    {\n      \"pid\": {{product_x}},\n      \"qty\": 2\n    },\n    {\n      \"pid\": {{product_y}},\n      \"qty\": 5\n    }\n  ]\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.collectionVariables.set('order_started',Date.now());"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 201',()=>pm.expect(pm.response.code).to.equal(201));",
+              "if(pm.response.code===201)pm.collectionVariables.set('oid',pm.response.json().order.oid);",
+              "pm.test('Two correct details and exact total',()=>{const o=pm.response.json().order;pm.expect(o.items).to.have.lengthOf(2);pm.expect(o.total).to.equal('1200000.00');pm.expect(o.items.find(i=>i.pid===Number(pm.environment.get('product_x'))).qty).to.equal(2);pm.expect(o.items.find(i=>i.pid===Number(pm.environment.get('product_y'))).qty).to.equal(5);});",
+              "pm.test('Order time comes from server',()=>{const at=Date.parse(pm.response.json().order.createat);const sent=Number(pm.collectionVariables.get('order_started'));pm.expect(at).to.be.at.least(sent-5000);pm.expect(at).to.be.at.most(Date.now()+5000);});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "09 - View order and details",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{customer_token}}"
+          }
+        ],
+        "url": "{{base_url}}/api/orders/{{oid}}",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200',()=>pm.expect(pm.response.code).to.equal(200));",
+              "pm.test('Saved order',()=>{const o=pm.response.json().order;pm.expect(o.oid).to.equal(Number(pm.collectionVariables.get('oid')));pm.expect(o.items).to.have.lengthOf(2);pm.expect(o.total).to.equal('1200000.00');});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "10 - X remaining 8",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{base_url}}/api/products/{{product_x}}",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200',()=>pm.expect(pm.response.code).to.equal(200));",
+              "pm.test('X stock 8',()=>pm.expect(pm.response.json().product.quantity).to.equal(8));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "11 - Y remaining 15",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{base_url}}/api/products/{{product_y}}",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200',()=>pm.expect(pm.response.code).to.equal(200));",
+              "pm.test('Y stock 15',()=>pm.expect(pm.response.json().product.quantity).to.equal(15));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "12 - Admin login to arrange shipment",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/api/auth/login",
+        "auth": {
+          "type": "noauth"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"{{admin_username}}\",\n  \"password\": \"{{admin_password}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200',()=>pm.expect(pm.response.code).to.equal(200));",
+              "if(pm.response.code===200)pm.collectionVariables.set('admin_token',pm.response.json().accessToken);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "13 - Move successful order to shipment",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{admin_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/api/orders/{{oid}}/shipments",
+        "auth": {
+          "type": "noauth"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 201',()=>pm.expect(pm.response.code).to.equal(201));",
+              "if(pm.response.code===201)pm.collectionVariables.set('shipid',pm.response.json().shipment.shipid);",
+              "pm.test('Shipment references order',()=>{const s=pm.response.json().shipment;pm.expect(s.oid).to.equal(Number(pm.collectionVariables.get('oid')));pm.expect(s.status).to.equal('PENDING');});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "14 - Customer displays Shipment",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{customer_token}}"
+          }
+        ],
+        "url": "{{base_url}}/api/orders/{{oid}}",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200',()=>pm.expect(pm.response.code).to.equal(200));",
+              "pm.test('Shipment visible to owner',()=>{const s=pm.response.json().order.shipments;pm.expect(s).to.have.lengthOf(1);pm.expect(s[0].shipid).to.equal(Number(pm.collectionVariables.get('shipid')));pm.expect(s[0].status).to.equal('PENDING');});"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
