@@ -26,7 +26,7 @@ SELECT (SELECT COUNT(*) FROM "OrderDetail" WHERE oid=$OrderId)=2
 \echo PASS
 \else
 \echo FAIL
-\quit 1
+SELECT 1/0 AS prompt2_verification_failed;
 \endif
 "@
     $sql | docker compose exec -T db sh -c 'exec psql -X -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -d "$POSTGRES_DB"'
